@@ -69,12 +69,12 @@ The steps performed are as follows:
     * Filtering rows and columns that are not relevant to solve the problem. 
 
 4. **Feature Engineering**
-    * Creating new features and raising hypotheses to understand the phenomenon that is being modeled and it's agents.
+    * Creating new features and raising hypotheses to understand the phenomenon that is being modeled and its agents.
 
 5. **Exploratory Data Analysis (EDA)**
     * Validating the business hypotheses;
     * Understanding what might be the most important features to the model;
-    * Finding a better data space to create clusters.
+    * Finding the best data space to create clusters.
       * Using embedding to reduce the dimensionality.
 
 6. **Data Preparation**
@@ -91,7 +91,7 @@ The steps performed are as follows:
       * Using Silhouette Score to determine the best model and value for K.    
       
 9. **Model Training**
-    * Choosing the best model to train and getting its performance metrics.
+    * Training the best model and getting its performance metrics.
    
 10. **Cluster Analysis**
     * Analyzing the clusters obtained and their characteristics;
@@ -99,15 +99,101 @@ The steps performed are as follows:
 
 11. **Deploy Model To Production**
     * Creating a pipeline in the cloud (AWS) to make the process available to the user.
-      * EC2, S3 and RDS were used to create it. 
+      * EC2, S3 and RDS were used to create it, and the metabase to create a dashboard.
 
 # 4. Results
 
 ## 4.1. MACHINE LEARNING MODEL
+Five data spaces were tested to find the most well defined clusters:
+
+* Original 
+* From PCA
+* From UMAP
+* From t-SNE
+* From Tree-based embedding
+
+The following metrics were used to choose the best model:
+
+* Silhouette Score
+* Business assumptions
+
+To choose the best data space, the Silhouette Score was used within visual spections when there was just 2 dimensions and the final results obtained on the cluster analysis. In the last cycle, it was decided to use the original data space, because the cluster Insiders created with this space was the best fit for the business problem, as will be shown in the next section.
+
+The models were trained with different values for K and its Silhouette Scores were compared to choose the best one and a value for K.
+
+<div align="center">
+
+|           |     2    |     3    |     4    |    5     |    6     |    7     |     8    |     9    |    10    |    11    |     12   |     13   |    14    |     15   |
+|:---------:|:--------:|:--------:|:--------:|:--------:|:--------:|:--------:|:--------:|:--------:|:--------:|:--------:|:--------:|:--------:|:--------:|:--------:|
+|KMeans	     |0.689180 |0.632644	|0.542587	 |0.533976	|0.512531	 |0.506438	|0.488311	 |0.446134	|0.436967	 |0.450934	| 0.451015 |	0.446832| 0.444745 | 0.473795	|
+|GMM	       |-0.058279|-0.273269	|-0.093058 |-0.045796 |	-0.000073|-0.147786	|-0.268632 |-0.220818	|-0.222257 |-0.225105	|-0.241462 |-0.247155 |-0.321111 |-0.111884 |
+|HC          |0.682134 |0.640887	|0.523376	 |0.524095	|0.523031	 |0.527399	|0.480081	 |0.464021	|0.368133	 |0.364492	|0.401858	 |0.403315	|0.408088	 |0.408424  |
+
+</div>
+
+According to the Silhouette Score for each model and K, the best model is the KMeans with K = 2. But it's not a good separation in business terms, since there is a lot of customers in each cluster. As a basis for comparison, the RFM model splits the customers into 10 groups. So, the closest number to 10 with the highest Silhouette Score was chosen to be used in production, which was K = 7 for the Hierarchical Clustering model.   
+
+The clusters found are as follows:
+
+<div align="center">
+
+|cluster |qty_customers |perc_customer |avg_gross_revenue |avg_recency_days |avg_frequency |avg_qty_products |avg_returns|
+|:------:|:------------:|:------------:|:----------------:|:---------------:|:------------:|:---------------:|:---------:|
+|2 |7 |0.12% |$171,711 |6 days |0.19 purchases/day |87,276 products |1,056 products|
+|3 |2281 |40.05% |$2,629 |18 days |0.28 purchases/day |1,520 products |34 products|
+|1 |1262 |22.16% |$1,043 |78 days |0.51 purchases/day |591 products |7 products|
+|4 |277 |4.87% |$905 |362 days |1.05 purchases/day |251 products |2 products|
+|5 |486 |8.53% |$771 |305 days |0.94 purchases/day |390 products |155 products|
+|6 |700 |12.30% |$717 |163 days |0.70 purchases/day |318 products |4 products|
+|7 |682 |11.98% |$662 |236 days |0.88 purchases/day |271 products |18 products|
+
+</div>
 
 ## 4.2. BUSINESS PERFORMANCE
+Answering to the business questions based on the results:
+
+* **1. Who are the eligible customers to the program?**
+    * The customers with the following "customer_id": 
+      * 15
+      * 66
+      * 191
+      * 434
+      * 492
+      * 1150
+      * 14646
+	
+  
+* **2. How many customers will be part of the group?**
+    * For now, 7 customers (0.12% of the total customers) will be part of the Insiders.
+
+* **3. What are the main characteristics of these customers?**
+    * **Average gross revenue:** $171,711
+    * **Average recency days:** 6 days
+    * **Average frequency:** 0.19 purchases/day
+    * **Average products purchased:** 87,276 products
+    * **Average products returned:** 1,056 products
+   
+* **4. What is the percentage of revenue contribution from the Insiders?**
+    * It is 11.9% ($1,201,978.37 of $10,096,818.07).
+
+* **5. What is the expected revenue from the Insiders for the next few months?**
+    * This question will be not answered for now.
+
+* **6. What are the conditions for a person to be eligible as an Insider?**
+  * The person has to have similar characteristics to the ones described in question 3 to be eligible, focusing on high gross revenue and quantity of products.
+
+* **7. What are the conditions for a person to be removed from the Insiders?**
+  * The person has to have different characteristics to the ones described in question 3.
+
+* **8. What is the guarantee that the Insiders are better than the rest?**
+  * Based on the percentage of revenue contribution and purchase volume, we can see that the insiders stand out.
+
+* **9. What actions could be done by the marketing team to increase the revenue?**
+  * They can focus on the second cluster with the higher gross revenue and stimulate them to buy more or more expensive products, giving discounts or a special service, to put them closer to the insiders.
+
 
 # 5.DEPLOY
+
 
 
 
