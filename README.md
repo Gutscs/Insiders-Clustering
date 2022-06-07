@@ -194,6 +194,8 @@ Answering to the business questions based on the results:
 
 # 5.DEPLOY
 
+The model was deployed using an AWS EC2 instance running Ubuntu. An Activity was set on Cronjob to execute a bash script that calls the Papermill that executes the Jupyter Notebook containing the model and strunctions to perform the clusterization. The data comes from a S3 bucket and the output is saved on a PostgreSQL database, which can be accessed by the user using to create dashboards and reports.  
 
-
-
+<p align="center">
+  <img src="img/deployment_diagram.png" />
+</p>
