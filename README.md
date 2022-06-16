@@ -154,13 +154,13 @@ Answering to the business questions based on the results:
 
 * **1. Who are the eligible customers to the program?**
     * The customers with the following "customer_id": 
-      * 15
-      * 66
-      * 191
-      * 434
-      * 492
-      * 1150
+      * 17511
+      * 14911
+      * 14156
+      * 17450
+      * 18102
       * 14646
+      * 12415
 	
   
 * **2. How many customers will be part of the group?**
@@ -199,4 +199,8 @@ The model was deployed using an AWS EC2 instance running Ubuntu. An Activity was
 
 <p align="center">
   <img src="img/deployment_diagram.png" />
+</p>
+
+<p align="center">
+  <img src="img/insiders_dashboard.png" />
 </p>
